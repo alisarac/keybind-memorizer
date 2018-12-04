@@ -1,17 +1,40 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <button @click="addBinds"> Add New Bind</button>
+    <ul>
+      <li v-for="bind in binds">
+        <bind :key="bind"/>
+      </li>
+    </ul>
+
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Bind from './components/Bind.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    Bind
+  },
+  data () {
+    return {
+      binds: [],
+      startKey: 1
+    }
+  },
+  methods: {
+    addBinds(){
+      this.binds.push(this.startKey)
+      this.startKey++
+    }
+  },
+  mounted () {
+
+  },
+  unmounted () {
   }
 }
 </script>
