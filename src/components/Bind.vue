@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     onTimeout(currentBind) {
-      if(currentBind.bind == this.spell.bind) {
+      if(currentBind && currentBind.bind == this.spell.bind) {
         this.wrongCount++
         this.$emit('failed', {})
       }

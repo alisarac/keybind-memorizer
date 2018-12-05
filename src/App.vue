@@ -1,8 +1,9 @@
 <template>
   <div id="app">
     <div class="container">
-      <span v-for="spell in spells" :key="spell.bind">
-        <bind :spell="spell" :myturn="currentBind == spell" @done="done" @failed="failed" ref="bindComponent"/>
+      <span v-for="(spell, index) in spells" :key="spell.bind">
+        <input type="checkbox" v-model="exercises" :value="index" class="checkbox-class">
+        <bind :spell="spell" :myturn="currentBind == spell" @done="done" @failed="failed"/>
       </span>
     </div>
     <div class="randomized" v-if="currentBind">
@@ -16,6 +17,8 @@
     <div class="randomized" v-if="lastResult">
       <div> {{ lastResult }} </div>
     </div>
+    <button @click="pauseExercise" v-if="!pause">Pause</button>
+    <button @click="start" v-else>Start</button>
   </div>
 </template>
 
@@ -65,6 +68,7 @@ export default {
         {bind: 'ctrl+f9', name: 'Fade', icon: 'spell_magic_lesserinvisibilty'},
         {bind: 'ctrl+f10', name: 'Flying Mount', icon: 'ability_mount_netherdrakepurple'},
       ],
+      pause: true,
       startKey: 1,
       currentBind: null,
       lastResult: null,
@@ -74,11 +78,20 @@ export default {
       exercises: []
     }
   },
+  watch: {
+    exercises() {
+      if(this.exercises.length > 0) {
+        this.updateSelectedBind()
+      }
+    }
+  },
   methods: {
     updateSelectedBind() {
-      this.waitingTimeout = setTimeout(this.timerTick, 100)
-      this.currentBind = this.spells[this.exercises[Math.floor(Math.random() * this.exercises.length)]];
-      this.waiting = true
+      if(this.exercises.length > 0 && !this.pause) {
+        this.waitingTimeout = setTimeout(this.timerTick, 100)
+        this.currentBind = this.spells[this.exercises[Math.floor(Math.random() * this.exercises.length)]];
+        this.waiting = true
+      }
     },
     timerTick() {
       this.timer -= 50
@@ -87,6 +100,16 @@ export default {
         this.failed()
         return
       }
+      this.waitingTimeout = setTimeout(this.timerTick, 50)
+    },
+    pauseExercise() {
+      this.pause = true
+      this.timer = 2000
+      clearTimeout(this.waitingTimeout)
+    },
+    start() {
+      this.pause = false
+      this.timer = 2000
       this.waitingTimeout = setTimeout(this.timerTick, 50)
     },
     done() {
@@ -146,5 +169,8 @@ export default {
 }
 .randomized {
   margin-top: 20px;
+}
+.checkbox-class {
+  margin-bottom: 20px;
 }
 </style>
