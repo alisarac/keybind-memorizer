@@ -7,10 +7,17 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+  "paths": {
+    "osx": [
+      "~/.nvm/versions/node/v8.9.4/bin"
+    ]
+  },
   "dependencies": {
+    "material-icons": "^0.2.3",
     "mousetrap": "^1.6.2",
     "mousetrap-record": "^1.0.1",
-    "vue": "^2.5.17"
+    "vue": "^2.5.17",
+    "vuesax": "^3.8.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",

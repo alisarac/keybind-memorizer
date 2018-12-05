@@ -1,11 +1,21 @@
 <template>
   <div id="app">
-    <ul>
-      <li v-for="spell in spells"  :key="spell.bindKey">
-        <bind :spell="spell"/>
-      </li>
-    </ul>
-
+    <div class="container">
+      <span v-for="spell in spells" :key="spell.bind">
+        <bind :spell="spell" :myturn="currentBind == spell" @done="done" @failed="failed" ref="bindComponent"/>
+      </span>
+    </div>
+    <div class="randomized" v-if="currentBind">
+      <img v-if="currentBind.icon" :src="`https://wow.zamimg.com/images/wow/icons/large/${currentBind.icon}.jpg`"/>
+      <div>{{ currentBind.name }}
+        <div class="w3-light-grey">
+          <div class="w3-green" :style="`height:24px;width:${100-(timer/20)}%`"></div>
+        </div>
+      </div>
+    </div>
+    <div class="randomized" v-if="lastResult">
+      <div> {{ lastResult }} </div>
+    </div>
   </div>
 </template>
 
@@ -55,17 +65,47 @@ export default {
         {bind: 'ctrl+f9', name: 'Fade', icon: 'spell_magic_lesserinvisibilty'},
         {bind: 'ctrl+f10', name: 'Flying Mount', icon: 'ability_mount_netherdrakepurple'},
       ],
-      startKey: 1
+      startKey: 1,
+      currentBind: null,
+      lastResult: null,
+      waiting: true,
+      waitingTimeout: null,
+      timer: 2000,
+      exercises: []
     }
   },
   methods: {
-    addBinds(){
-      this.binds.push(this.startKey)
-      this.startKey++
+    updateSelectedBind() {
+      this.waitingTimeout = setTimeout(this.timerTick, 100)
+      this.currentBind = this.spells[this.exercises[Math.floor(Math.random() * this.exercises.length)]];
+      this.waiting = true
+    },
+    timerTick() {
+      this.timer -= 50
+      if(this.timer <= 0) {
+        this.$emit('timeout', this.currentBind);
+        this.failed()
+        return
+      }
+      this.waitingTimeout = setTimeout(this.timerTick, 50)
+    },
+    done() {
+      this.waiting = false
+      this.timer = 2000
+      clearTimeout(this.waitingTimeout);
+      this.lastResult = "Correct"
+      this.updateSelectedBind()
+    },
+    failed() {
+      this.waiting = false
+      this.timer = 2000
+      clearTimeout(this.waitingTimeout);
+      this.lastResult = "Wrong"
+      this.updateSelectedBind()
     }
   },
   mounted () {
-
+    this.updateSelectedBind()
   },
   unmounted () {
   }
@@ -73,6 +113,21 @@ export default {
 </script>
 
 <style>
+.w3-green, .w3-hover-green:hover {
+    color: #fff!important;
+    background-color: #4CAF50!important;
+    animation: move 0.1s linear;
+}
+.w3-red, .w3-hover-red:hover {
+    color: #fff!important;
+    background-color: red!important;
+}
+.w3-light-grey, .w3-hover-light-grey:hover, .w3-light-gray, .w3-hover-light-gray:hover {
+    color: #000!important;
+    background-color: #f1f1f1!important;
+    width: 200px;
+    margin:auto;
+}
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -80,5 +135,16 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.container {
+  display: flex; /* or inline-flex */
+  flex-flow: row wrap;
+  justify-content: space-around;
+}
+.container >span {
+  margin-bottom: 20px;
+}
+.randomized {
+  margin-top: 20px;
 }
 </style>
